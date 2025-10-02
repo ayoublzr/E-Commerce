@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JwtAuthenticationResponse {
-    private String accessToken;  // Changed to lowercase 'a' to match standard conventions
+    private String accessToken;
     private Long userId;
     private String role;
     private String refreshToken;
     private String tokenType;
     private boolean isVerified;
 
-    // Explicit getter with uppercase 'A'
+
     public String getAccessToken() {
         return this.accessToken;
     }
