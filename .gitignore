@@ -17,3 +17,5 @@ E-commerce_frontend/.angular/
 .DS_Store
 Thumbs.db
 EOFE-commerce_backend.local-backup/
+E-commerce_backend.local-backup/
+**/mysql-data/
