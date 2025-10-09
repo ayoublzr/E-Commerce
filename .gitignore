@@ -1,0 +1,19 @@
+# --- Backend (Spring) ---
+E-commerce_backend/target/
+E-commerce_backend/mysql-data/
+E-commerce_backend/*.log
+E-commerce_backend/*.iml
+E-commerce_backend/.project
+E-commerce_backend/.settings/
+
+# --- Frontend (Angular) ---
+E-commerce_frontend/node_modules/
+E-commerce_frontend/dist/
+E-commerce_frontend/.angular/
+
+# --- IDE / OS ---
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+EOF
