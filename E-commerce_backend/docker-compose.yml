@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql-ecommerce-v1
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: MonRootPwd123
+      MYSQL_DATABASE: ecommerce
+      MYSQL_USER: ecomuser
+      MYSQL_PASSWORD: secretPwd
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
