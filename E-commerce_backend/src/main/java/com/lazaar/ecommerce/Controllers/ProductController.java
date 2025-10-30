@@ -25,13 +25,9 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ProductController {
 
-    @Autowired
+
     private ProductsService productsService;
-
-    @Autowired
     private ProductCategoryRepository productCategoryRepository;
-
-    @Autowired
     private ProductStatusRepository productStatusRepository;
 
     // Create Product (ADMIN only)
