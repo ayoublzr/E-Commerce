@@ -144,21 +144,25 @@ public class AuthenticationController {
                     new ApiResponse("success", "OTP sent successfully!")
             );
         } catch (OTPExpiredException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse("error", "User not found"));
         } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("error", "An error occurred"));
         }
     }
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<?> verifyOTP(@RequestParam String email, @RequestParam String otp) {
+    public ResponseEntity<?> verifyOTP(@RequestBody OtpVerificationRequest request) {
         try {
-            authenticationService.verifyOTP(email, otp);
-            return ResponseEntity.ok("OTP verified successfully");
+            authenticationService.verifyOTP(request.getEmail(), request.getOtp());
+            return ResponseEntity.ok(new ApiResponse("success", "OTP verified successfully"));
         } catch (OTPExpiredException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("OTP verification failed: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse("error", ex.getMessage()));
         } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("error", "An error occurred"));
         }
     }
 
@@ -166,9 +170,13 @@ public class AuthenticationController {
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
         try {
             authenticationService.resetPassword(request);
-            return ResponseEntity.ok("Password reset successfully");
+            return ResponseEntity.ok(new ApiResponse("success", "Password reset successfully"));
+        } catch (OTPExpiredException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse("error", ex.getMessage()));
         } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("error", "An error occurred"));
         }
     }
 }

@@ -144,21 +144,32 @@ if (userRepository.findByEmail(request.getEmail()).isPresent()){
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new OTPExpiredException("User with email " + email + " not found"));
 
-        if (!user.getOtp().equals(otp)) {
-            throw new OTPExpiredException("Invalid OTP");
-        }
-
-        if (user.getOtpExpiry() == null || user.getOtpExpiry().isBefore(LocalDateTime.now())) {
-            throw new OTPExpiredException("OTP has expired");
-        }
+        checkOtp(user, otp);
     }
 
     public void resetPassword(ResetPasswordRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new OTPExpiredException("User with email " + request.getEmail() + " not found"));
 
+        // Re-verify the OTP server side: never trust that the client went through /verify-otp
+        checkOtp(user, request.getOtp());
+
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        // Single use: clear the OTP so it cannot be replayed
+        user.setOtp(null);
+        user.setOtpExpiry(null);
         userRepository.save(user);
+    }
+
+    private void checkOtp(User user, String otp) {
+        // otp.equals(...) is null-safe on the stored side (user never requested an OTP)
+        if (otp == null || !otp.equals(user.getOtp())) {
+            throw new OTPExpiredException("Invalid OTP");
+        }
+
+        if (user.getOtpExpiry() == null || user.getOtpExpiry().isBefore(LocalDateTime.now())) {
+            throw new OTPExpiredException("OTP has expired");
+        }
     }
 
 

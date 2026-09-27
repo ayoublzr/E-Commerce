@@ -11,7 +11,7 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class ResetPasswordComponent {
   email: string;
-  token: string;
+  otp: string;
   resetForm: FormGroup;
   loading: boolean = false;
 
@@ -22,8 +22,16 @@ export class ResetPasswordComponent {
     private authService: AuthService,
     private toastr: ToastrService
   ) {
-    this.email = this.route.snapshot.queryParams['email'] || '';
-    this.token = this.route.snapshot.queryParams['token'] || '';
+    // email + OTP come from the router state set by the OTP verification page.
+    // getCurrentNavigation() only works during navigation, history.state is the fallback.
+    const state = this.router.getCurrentNavigation()?.extras.state || history.state || {};
+    this.email = state['email'] || '';
+    this.otp = state['otp'] || '';
+
+    if (!this.email || !this.otp) {
+      this.toastr.error('Please verify your OTP first');
+      this.router.navigate(['/pages/forgotpassword']);
+    }
 
     this.resetForm = this.fb.group({
       newPassword: ['', [Validators.required, Validators.minLength(8)]],
@@ -51,7 +59,7 @@ export class ResetPasswordComponent {
     this.loading = true;
     const newPassword = this.resetForm.get('newPassword')?.value;
 
-    this.authService.resetPassword(this.email, newPassword).subscribe({
+    this.authService.resetPassword(this.email, this.otp, newPassword).subscribe({
       next: (response) => {
         this.loading = false;
         if (response.status === 'success') {

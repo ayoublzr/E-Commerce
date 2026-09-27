@@ -193,8 +193,8 @@ verifyOTP(email: string, otp: string): Observable<any> {
     );
   }
 
-resetPassword(email: string, newPassword: string): Observable<any> {
-  return this.http.post(`${this.BASIC_URL}/api/v1/auth/reset-password`, { email, newPassword }, {
+resetPassword(email: string, otp: string, newPassword: string): Observable<any> {
+  return this.http.post(`${this.BASIC_URL}/api/v1/auth/reset-password`, { email, otp, newPassword }, {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' })
     }).pipe(
       catchError(this.handleError)

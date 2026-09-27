@@ -67,9 +67,10 @@ verifyOtp() {
       if (response.status === 'success') {
         this.toastr.success(response.message || 'OTP verified successfully!');
 
-        // Navigate to reset password page
+        // Navigate to reset password page. The OTP travels in the router state
+        // (not the URL) because the backend re-checks it on /reset-password.
         this.router.navigate(['/pages/reset-password'], {
-          queryParams: { email: this.email }
+          state: { email: this.email, otp }
         });
 
       } else {
