@@ -52,6 +52,7 @@ if (userRepository.findByEmail(request.getEmail()).isPresent()){
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(role)
+                .isEnabled(true)
                 .build();
 
         userRepository.save(user);

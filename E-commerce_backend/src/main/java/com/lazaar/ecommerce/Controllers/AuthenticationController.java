@@ -1,6 +1,7 @@
 package com.lazaar.ecommerce.Controllers;
 
 import com.lazaar.ecommerce.DTO.request.*;
+import com.lazaar.ecommerce.DTO.response.ApiResponse;
 import com.lazaar.ecommerce.DTO.response.JwtAuthenticationResponse;
 import com.lazaar.ecommerce.Exception.OTPExpiredException;
 import com.lazaar.ecommerce.Repositories.UserRepository;
@@ -139,7 +140,9 @@ public class AuthenticationController {
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
         try {
             authenticationService.sendForgotPasswordEmail(request.getEmail());
-            return ResponseEntity.ok("Password reset email sent successfully");
+            return ResponseEntity.ok(
+                    new ApiResponse("success", "OTP sent successfully!")
+            );
         } catch (OTPExpiredException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         } catch (Exception ex) {
