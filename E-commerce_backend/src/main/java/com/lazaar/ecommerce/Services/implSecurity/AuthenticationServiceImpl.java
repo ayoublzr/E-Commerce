@@ -5,8 +5,10 @@ import com.lazaar.ecommerce.DTO.request.ResetPasswordRequest;
 import com.lazaar.ecommerce.DTO.request.SignUpRequest;
 import com.lazaar.ecommerce.DTO.request.SigninRequest;
 import com.lazaar.ecommerce.DTO.response.JwtAuthenticationResponse;
+import com.lazaar.ecommerce.Exception.EmailAlreadyUsedException;
 import com.lazaar.ecommerce.Exception.OTPExpiredException;
 import com.lazaar.ecommerce.Exception.TokenRefreshException;
+import com.lazaar.ecommerce.Exception.UserNotVerifiedException;
 import com.lazaar.ecommerce.Repositories.UserRepository;
 import com.lazaar.ecommerce.Security.AuthenticationService;
 import com.lazaar.ecommerce.Security.JwtService;
@@ -42,9 +44,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public JwtAuthenticationResponse SignUp(SignUpRequest request) {
 
-if (userRepository.findByEmail(request.getEmail()).isPresent()){
-    throw new RuntimeException("Email already in use");
-}
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new EmailAlreadyUsedException("Email is already registered");
+        }
         Role role = request.getRole() != null ? request.getRole() : Role.CUSTOMER;
         var user = User.builder()
                 .firstName(request.getFirstName())
@@ -82,7 +84,7 @@ if (userRepository.findByEmail(request.getEmail()).isPresent()){
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
         if(!user.isVerified()){
-            throw new RuntimeException("User is not verified " + "Please check your email for verification link");
+            throw new UserNotVerifiedException("Account not verified. Please check your email for the verification link");
         }
 
         var jwtToken = jwtService.generateToken(user);
