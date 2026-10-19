@@ -30,10 +30,10 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final EmailVerificationService emailVerificationService;
 
-    @Value("http://localhost:8087/api/v1/auth/verify")
+    @Value("${app.verification-url}")
     private String verificationUrl;
 
-    @Value("http://localhost:4200/pages/login")
+    @Value("${app.frontend-url}")
     private String frontendUrl;
 
     private final UserRepository userRepository;

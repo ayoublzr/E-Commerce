@@ -38,8 +38,9 @@ E-commerce/
 
 ```bash
 # Backend
-cd E-commerce_backend && ./mvnw spring-boot:run
-cd E-commerce_backend && ./mvnw test
+cd E-commerce_backend && mvn spring-boot:run      # ./mvnw cassé : dossier .mvn/ absent (ignoré par E-commerce_backend/.gitignore)
+cd E-commerce_backend && mvn test
+cd E-commerce_backend && docker compose --env-file ../.env up -d   # MySQL seul (jusqu'à l'étape 4)
 # Frontend
 cd E-commerce_frontend && npm install && npm start      # http://localhost:4200
 ```
@@ -51,7 +52,7 @@ cd E-commerce_frontend && npm install && npm start      # http://localhost:4200
 
 ## Plan de travail
 
-1. [ ] Sécurité/config : sortir tous les secrets vers un `.env` (non commité) + `.env.example`
+1. [x] Sécurité/config : sortir tous les secrets vers un `.env` (non commité) + `.env.example`
 2. [ ] Corrections auth backend : rôles `ROLE_`, signup sans choix du rôle, reset password avec vérification OTP, gestion globale des erreurs
 3. [ ] Auth frontend : supprimer Firebase, guard, intercepteur enregistré, `environment.ts` (apiUrl), refresh token
 4. [ ] Dockerisation complète : backend, frontend (Nginx), MySQL, `docker-compose.yml` à la racine
