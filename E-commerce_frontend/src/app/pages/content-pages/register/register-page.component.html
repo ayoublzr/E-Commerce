@@ -14,6 +14,14 @@
                 <h4 class="card-title mb-2">Create Account</h4>
                 <p>Fill the below form to create a new account.</p>
 
+                <!-- Alert for registration failure (e.g. email already registered) -->
+                <div *ngIf="isRegisterFailed" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
+                  {{ errorMessage }}
+                  <button type="button" class="close" (click)="isRegisterFailed = false">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+
               <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
   <div class="form-group">
     <input type="text" formControlName="firstName" class="form-control mb-2" placeholder="First name"
@@ -21,6 +29,9 @@
                         'is-valid':   registerFormSubmitted && rf.firstName.valid }" required>
     <div *ngIf="registerFormSubmitted && rf.firstName.errors?.required" class="help-block mt-1 text-danger">
       <i class="ft-alert-circle align-middle"></i> First name is required
+    </div>
+    <div *ngIf="registerFormSubmitted && rf.firstName.errors?.minlength" class="help-block mt-1 text-danger">
+      <i class="ft-alert-circle align-middle"></i> First name must be at least 2 characters
     </div>
   </div>
 
@@ -30,6 +41,9 @@
                         'is-valid':   registerFormSubmitted && rf.lastName.valid }" required>
     <div *ngIf="registerFormSubmitted && rf.lastName.errors?.required" class="help-block mt-1 text-danger">
       <i class="ft-alert-circle align-middle"></i> Last name is required
+    </div>
+    <div *ngIf="registerFormSubmitted && rf.lastName.errors?.minlength" class="help-block mt-1 text-danger">
+      <i class="ft-alert-circle align-middle"></i> Last name must be at least 2 characters
     </div>
   </div>
 
@@ -83,7 +97,10 @@
 
   <div class="d-flex justify-content-between flex-sm-row flex-column">
     <a [routerLink]="['/pages/login']" class="btn bg-light-primary mb-2 mb-sm-0">Back To Login</a>
-    <button class="btn btn-primary" type="submit">Register</button>
+    <button class="btn btn-primary" type="submit" [disabled]="loading">
+      <span *ngIf="!loading">Register</span>
+      <span *ngIf="loading" class="spinner-border spinner-border-sm"></span>
+    </button>
   </div>
 </form>
 

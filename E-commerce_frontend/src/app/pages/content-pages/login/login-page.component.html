@@ -14,6 +14,14 @@
                 <h4 class="mb-2 card-title">Login</h4>
                 <p>Welcome back, please login to your account.</p>
                 
+                <!-- Alert for success (account verified / account created) -->
+                <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mb-2" role="alert">
+                  {{ successMessage }}
+                  <button type="button" class="close" (click)="successMessage = ''">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+
                 <!-- Alert for login failure -->
                 <div *ngIf="isLoginFailed" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
                   {{ errorMessage }}
@@ -62,7 +70,8 @@
                         </button>
                       </div>
                     </div>
-                    <div *ngIf="loginFormSubmitted && lf.password.invalid" class="invalid-feedback">
+                    <!-- d-block: outside the input-group, Bootstrap would hide .invalid-feedback -->
+                    <div *ngIf="loginFormSubmitted && lf.password.invalid" class="invalid-feedback d-block">
                       <span *ngIf="lf.password.errors?.['required']">Password is required</span>
                       <span *ngIf="lf.password.errors?.['minlength']">Password must be at least 6 characters</span>
                     </div>
@@ -82,8 +91,9 @@
                   
                   <div class="d-flex justify-content-between flex-sm-row flex-column">
                     <a [routerLink]="['/pages/register']" class="btn bg-light-primary mb-2 mb-sm-0">Register</a>
-                    <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loginForm.invalid">
-                      Login
+                    <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading">
+                      <span *ngIf="!loading">Login</span>
+                      <span *ngIf="loading" class="spinner-border spinner-border-sm"></span>
                     </button>
                   </div>
                 </form>
@@ -104,4 +114,4 @@
     </div>
   </div>
 </section>
-<!--Login Page Ends-->
+<!--Login Page Ends-->

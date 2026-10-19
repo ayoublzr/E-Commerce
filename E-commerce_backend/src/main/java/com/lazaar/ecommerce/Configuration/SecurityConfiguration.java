@@ -46,6 +46,8 @@ public class SecurityConfiguration {
                         // Public endpoints
                         .requestMatchers(
                                 "/api/v1/auth/**",
+                                // Spring forwards uncaught errors here: if it is protected, every error becomes an empty 403
+                                "/error",
                                 "/v2/api-docs",
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",

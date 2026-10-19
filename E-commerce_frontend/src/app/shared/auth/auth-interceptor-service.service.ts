@@ -32,7 +32,7 @@ export class AuthInterceptorService implements HttpInterceptor {
           this.authService.logout();
           this.router.navigate(['/pages/login']);
         }
-        return throwError(() => error);
+        return throwError(error);
       })
     );
   }

@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { AuthServiceService } from 'app/shared/auth/auth-service.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { NgxSpinnerService } from "ngx-spinner";
 import { MustMatch } from '../../../shared/directives/must-match.validator';
 
 @Component({
@@ -14,6 +12,7 @@ export class RegisterPageComponent {
   registerFormSubmitted = false;
   isRegisterFailed = false;
   errorMessage: string = '';
+  loading = false;
 
   registerForm = new UntypedFormGroup({
     firstName:      new UntypedFormControl('', [Validators.required, Validators.minLength(2)]),
@@ -24,12 +23,7 @@ export class RegisterPageComponent {
     acceptTerms:    new UntypedFormControl(false, [Validators.requiredTrue]),
   });
 
-  constructor(
-    private router: Router,
-    private authService: AuthServiceService,
-    private spinner: NgxSpinnerService,
-    private route: ActivatedRoute
-  ) {
+  constructor(private authService: AuthServiceService) {
     // applique le validator "passwords must match"
     this.registerForm.setValidators(MustMatch('password', 'confirmPassword'));
   }
@@ -45,18 +39,24 @@ export class RegisterPageComponent {
 
     const { firstName, lastName, email, password } = this.registerForm.value as any;
     const role = 'CUSTOMER';
+    this.loading = true;
 
     // ⚠️ l'ordre attendu par ton service est (email, password, firstName, lastName, role)
     this.authService.register(email, password, firstName, lastName, role).subscribe({
-      next: (res) => {
-        this.spinner.hide();
-        console.log('Registration successful', res);
+      next: () => {
+        // The service redirects to the login page, which shows the "check your email" message
+        this.loading = false;
       },
       error: (err) => {
+        this.loading = false;
         this.isRegisterFailed = true;
-        this.errorMessage = err?.error?.message || 'An error occurred during registration.';
-        this.spinner.hide();
-        console.error('Registration error:', err);
+        if (err?.error?.message) {
+          this.errorMessage = err.error.message;
+        } else if (err?.status === 0) {
+          this.errorMessage = 'Cannot reach the server. Please try again later.';
+        } else {
+          this.errorMessage = 'An error occurred during registration.';
+        }
       }
     });
   }

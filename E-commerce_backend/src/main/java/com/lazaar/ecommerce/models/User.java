@@ -69,7 +69,7 @@ public class User implements UserDetails {
 
 
     // ================ Account Status ================
-    @Column(name = "is_enabled", nullable = false)
+    @Column(name = "is_enabled", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isEnabled = true;
 // If false → account disabled (e.g., by admin or after too many failed logins)
 
@@ -101,5 +101,5 @@ public class User implements UserDetails {
     public boolean isCredentialsNonExpired() { return true; }
 
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() { return this.isEnabled; }
 }

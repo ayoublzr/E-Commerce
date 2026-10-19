@@ -1,7 +1,8 @@
 // auth-service.service.ts - AMÉLIORÉ
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+
 import { Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
@@ -9,10 +10,18 @@ import { jwtDecode } from 'jwt-decode';
 @Injectable({
   providedIn: 'root'
 })
+
 export class AuthServiceService {
 
   private apiUrl = 'http://localhost:8087/api/v1/auth';
   private tokenKey = 'ecommerce_app_tokens';
+  private BASIC_URL = 'http://localhost:8087'
+
+  private handleError(error: HttpErrorResponse) {
+  console.error('HTTP Error:', error);
+  return throwError(error);
+}
+ 
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -52,7 +61,7 @@ export class AuthServiceService {
       }),
       catchError((error) => {
         console.error('Login error:', error);
-        return throwError(() => error);
+        return throwError(error);
       })
     );
   }
@@ -101,11 +110,12 @@ register(email: string, password: string, firstName: string, LastName: string, r
           username: decodedToken.sub || email
         }));
 
-        this.router.navigate(['/pages/login']);
+        // The login page reads these params to show "account created, check your email"
+        this.router.navigate(['/pages/login'], { queryParams: { registered: 'true', email } });
       }),
       catchError((error) => {
-        console.error('Login error:', error);
-        return throwError(() => error);
+        console.error('Register error:', error);
+        return throwError(error);
       })
     );
   }
@@ -167,4 +177,29 @@ register(email: string, password: string, firstName: string, LastName: string, r
     const tokens = JSON.parse(localStorage.getItem(this.tokenKey) || '{}');
     return tokens.isVerified || false;
   }
+
+  forgotPassword(email: string): Observable<any> {
+  return this.http.post(`${this.BASIC_URL}/api/v1/auth/forgot-password`, { email }, {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+verifyOTP(email: string, otp: string): Observable<any> {
+  return this.http.post(`${this.BASIC_URL}/api/v1/auth/verify-otp`, { email, otp }, {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+resetPassword(email: string, otp: string, newPassword: string): Observable<any> {
+  return this.http.post(`${this.BASIC_URL}/api/v1/auth/reset-password`, { email, otp, newPassword }, {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
 }

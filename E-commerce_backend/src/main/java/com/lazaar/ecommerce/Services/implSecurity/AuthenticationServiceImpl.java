@@ -5,8 +5,10 @@ import com.lazaar.ecommerce.DTO.request.ResetPasswordRequest;
 import com.lazaar.ecommerce.DTO.request.SignUpRequest;
 import com.lazaar.ecommerce.DTO.request.SigninRequest;
 import com.lazaar.ecommerce.DTO.response.JwtAuthenticationResponse;
+import com.lazaar.ecommerce.Exception.EmailAlreadyUsedException;
 import com.lazaar.ecommerce.Exception.OTPExpiredException;
 import com.lazaar.ecommerce.Exception.TokenRefreshException;
+import com.lazaar.ecommerce.Exception.UserNotVerifiedException;
 import com.lazaar.ecommerce.Repositories.UserRepository;
 import com.lazaar.ecommerce.Security.AuthenticationService;
 import com.lazaar.ecommerce.Security.JwtService;
@@ -42,9 +44,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public JwtAuthenticationResponse SignUp(SignUpRequest request) {
 
-if (userRepository.findByEmail(request.getEmail()).isPresent()){
-    throw new RuntimeException("Email already in use");
-}
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new EmailAlreadyUsedException("Email is already registered");
+        }
         Role role = request.getRole() != null ? request.getRole() : Role.CUSTOMER;
         var user = User.builder()
                 .firstName(request.getFirstName())
@@ -52,6 +54,7 @@ if (userRepository.findByEmail(request.getEmail()).isPresent()){
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(role)
+                .isEnabled(true)
                 .build();
 
         userRepository.save(user);
@@ -81,7 +84,7 @@ if (userRepository.findByEmail(request.getEmail()).isPresent()){
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
         if(!user.isVerified()){
-            throw new RuntimeException("User is not verified " + "Please check your email for verification link");
+            throw new UserNotVerifiedException("Account not verified. Please check your email for the verification link");
         }
 
         var jwtToken = jwtService.generateToken(user);
@@ -143,21 +146,32 @@ if (userRepository.findByEmail(request.getEmail()).isPresent()){
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new OTPExpiredException("User with email " + email + " not found"));
 
-        if (!user.getOtp().equals(otp)) {
-            throw new OTPExpiredException("Invalid OTP");
-        }
-
-        if (user.getOtpExpiry() == null || user.getOtpExpiry().isBefore(LocalDateTime.now())) {
-            throw new OTPExpiredException("OTP has expired");
-        }
+        checkOtp(user, otp);
     }
 
     public void resetPassword(ResetPasswordRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new OTPExpiredException("User with email " + request.getEmail() + " not found"));
 
+        // Re-verify the OTP server side: never trust that the client went through /verify-otp
+        checkOtp(user, request.getOtp());
+
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        // Single use: clear the OTP so it cannot be replayed
+        user.setOtp(null);
+        user.setOtpExpiry(null);
         userRepository.save(user);
+    }
+
+    private void checkOtp(User user, String otp) {
+        // otp.equals(...) is null-safe on the stored side (user never requested an OTP)
+        if (otp == null || !otp.equals(user.getOtp())) {
+            throw new OTPExpiredException("Invalid OTP");
+        }
+
+        if (user.getOtpExpiry() == null || user.getOtpExpiry().isBefore(LocalDateTime.now())) {
+            throw new OTPExpiredException("OTP has expired");
+        }
     }
 
 

@@ -5,10 +5,10 @@ services:
     container_name: mysql-ecommerce-v1
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: MonRootPwd123
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ecommerce
-      MYSQL_USER: ecomuser
-      MYSQL_PASSWORD: secretPwd
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
