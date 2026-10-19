@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, Inject, Renderer2, ViewChild, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ElementRef, Inject, Renderer2, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ConfigService } from 'app/shared/services/config.service';
 import { DOCUMENT } from '@angular/common';
 import { Subscription } from 'rxjs';
@@ -8,8 +8,9 @@ import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-content-layout',
   templateUrl: './content-layout.component.html',
-  styleUrls: ['./content-layout.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./content-layout.component.scss']
+  // No OnPush here: this layout hosts the auth pages through <router-outlet>, and OnPush would
+  // skip them after an HTTP response (error/success messages only appeared on the next keystroke)
 })
 
 export class ContentLayoutComponent implements OnInit, OnDestroy {

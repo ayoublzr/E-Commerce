@@ -19,7 +19,7 @@ export class AuthServiceService {
 
   private handleError(error: HttpErrorResponse) {
   console.error('HTTP Error:', error);
-  return throwError(() => error);
+  return throwError(error);
 }
  
 
@@ -61,7 +61,7 @@ export class AuthServiceService {
       }),
       catchError((error) => {
         console.error('Login error:', error);
-        return throwError(() => error);
+        return throwError(error);
       })
     );
   }
@@ -110,11 +110,12 @@ register(email: string, password: string, firstName: string, LastName: string, r
           username: decodedToken.sub || email
         }));
 
-        this.router.navigate(['/pages/login']);
+        // The login page reads these params to show "account created, check your email"
+        this.router.navigate(['/pages/login'], { queryParams: { registered: 'true', email } });
       }),
       catchError((error) => {
-        console.error('Login error:', error);
-        return throwError(() => error);
+        console.error('Register error:', error);
+        return throwError(error);
       })
     );
   }
